@@ -1,0 +1,108 @@
+@keyframes office-typing {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes office-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes office-bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes office-error-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes office-walk-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(-2px);
+  }
+
+  75% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes office-sip {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  40% {
+    transform: rotate(-8deg);
+  }
+
+  60% {
+    transform: rotate(6deg);
+  }
+}
+
+.bot-motion--working .bot-character__hands {
+  animation: office-typing 0.45s ease-in-out infinite;
+}
+
+.bot-motion--idle .bot-character__body-group {
+  animation: office-bob 2.4s ease-in-out infinite;
+}
+
+.bot-motion--waiting .status-bubble--waiting {
+  animation: office-bubble-float 1.6s ease-in-out infinite;
+}
+
+.bot-motion--error .status-bubble--error {
+  animation: office-error-blink 0.9s ease-in-out infinite;
+}
+
+.bot-motion--messaging .bot-character__body-group {
+  animation: office-walk-bob 0.5s ease-in-out infinite;
+}
+
+.bot-motion--coffee .bot-character__body-group {
+  animation: office-sip 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-motion--working .bot-character__hands,
+  .bot-motion--idle .bot-character__body-group,
+  .bot-motion--waiting .status-bubble--waiting,
+  .bot-motion--error .status-bubble--error,
+  .bot-motion--messaging .bot-character__body-group,
+  .bot-motion--coffee .bot-character__body-group {
+    animation: none;
+  }
+}
