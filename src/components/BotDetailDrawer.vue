@@ -16,6 +16,7 @@ import {
   statusLabel,
   statusTagSeverity,
 } from '../utils/botStatus'
+import { focusBotInteractive, restoreLastBotInteractive } from '../utils/botFocus'
 
 const store = useOfficeStore()
 const { selectedBot, selectedBotId } = storeToRefs(store)
@@ -27,6 +28,26 @@ const visible = computed({
     if (!open) store.selectBot(null)
   },
 })
+
+const focusRestoreBotId = ref<BotId | null>(null)
+
+watch(selectedBotId, (id, previousId) => {
+  if (id) {
+    focusRestoreBotId.value = id
+    return
+  }
+  if (previousId) {
+    restoreFocusToCharacter()
+  }
+})
+
+function restoreFocusToCharacter() {
+  window.setTimeout(() => {
+    const botId = focusRestoreBotId.value
+    if (botId) focusBotInteractive(botId)
+    restoreLastBotInteractive()
+  }, 500)
+}
 
 const nowTick = ref(Date.now())
 let durationTimer: ReturnType<typeof setInterval> | undefined
@@ -100,6 +121,7 @@ function confirmRemove() {
     :header="selectedBot ? `${selectedBot.name} · 詳情` : 'Bot 詳情'"
     class="bot-detail-drawer"
     :style="{ width: 'min(360px, 92vw)' }"
+    @after-hide="restoreFocusToCharacter"
   >
     <template v-if="selectedBot">
       <div class="bot-detail-drawer__section">

@@ -57,14 +57,6 @@ function resetForm() {
 watch(visible, (open) => {
   if (!open) return
   resetForm()
-  if (seatsFull.value) {
-    toast.add({
-      severity: 'warn',
-      summary: '無空位',
-      detail: '所有座位都已占用，無法新增 bot。',
-      life: 4000,
-    })
-  }
 })
 
 function close() {
@@ -72,16 +64,6 @@ function close() {
 }
 
 function submit() {
-  if (seatsFull.value) {
-    toast.add({
-      severity: 'warn',
-      summary: '無空位',
-      detail: '所有座位都已占用，無法新增 bot。',
-      life: 4000,
-    })
-    return
-  }
-
   const id = store.addBot({
     name: name.value,
     avatar: avatar.value,
@@ -93,7 +75,7 @@ function submit() {
     toast.add({
       severity: 'warn',
       summary: '無空位',
-      detail: '無法新增 bot，請先移除一位 bot 或選擇其他座位。',
+      detail: '所有座位都已占用，無法新增 bot。',
       life: 4000,
     })
     return

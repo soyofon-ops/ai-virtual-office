@@ -3,21 +3,12 @@ import { computed, toRef } from 'vue'
 
 import StatusBubble from './StatusBubble.vue'
 
-import Tooltip from 'primevue/tooltip'
-
-import type { Bot, BotId } from '../types/bot'
+import type { Bot } from '../types/bot'
 import type { Point } from '../types/theme'
-import { botTooltipText } from '../utils/botStatus'
-
-const vTooltip = Tooltip
 
 const props = defineProps<{
   bot: Bot
   position: Point
-}>()
-
-const emit = defineEmits<{
-  activate: [id: BotId]
 }>()
 
 const botRef = toRef(props, 'bot')
@@ -40,25 +31,12 @@ const motionClass = computed(() => {
 
 const avatarHue = computed(() => hueFromId(props.bot.id))
 
-function hueFromId(id: BotId) {
+function hueFromId(id: string) {
   let hash = 0
   for (let index = 0; index < id.length; index += 1) {
     hash = (hash * 31 + id.charCodeAt(index)) | 0
   }
   return Math.abs(hash) % 360
-}
-
-const tooltipText = computed(() => botTooltipText(props.bot.name, props.bot.status))
-
-function activate() {
-  emit('activate', props.bot.id)
-}
-
-function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    activate()
-  }
 }
 </script>
 
@@ -69,20 +47,8 @@ function onKeydown(event: KeyboardEvent) {
     :data-bot-id="bot.id"
     :data-bot-status="statusKind"
     :transform="`translate(${position.x} ${position.y})`"
+    aria-hidden="true"
   >
-    <rect
-      class="bot-character__hit"
-      x="-22"
-      y="-22"
-      width="44"
-      height="58"
-      tabindex="0"
-      role="button"
-      :aria-label="`${bot.name}，${statusKind}，按 Enter 查看詳情`"
-      v-tooltip.top="tooltipText"
-      @click.stop="activate"
-      @keydown="onKeydown"
-    />
     <ellipse cx="0" cy="14" rx="14" ry="4" class="bot-character__shadow" />
     <g class="bot-character__body-group">
       <rect x="-10" y="2" width="20" height="18" rx="6" :fill="`hsl(${avatarHue} 45% 55%)`" />
@@ -109,16 +75,5 @@ function onKeydown(event: KeyboardEvent) {
 
 .bot-character__hands {
   transform-origin: 0 8px;
-}
-
-.bot-character__hit {
-  fill: transparent;
-  stroke: none;
-  cursor: pointer;
-}
-
-.bot-character__hit:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
 }
 </style>
