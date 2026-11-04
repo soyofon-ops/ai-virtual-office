@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
+import ConfirmDialog from 'primevue/confirmdialog'
+import Toast from 'primevue/toast'
 import { storeToRefs } from 'pinia'
 
+import AddBotDialog from './components/AddBotDialog.vue'
+import BotDetailDrawer from './components/BotDetailDrawer.vue'
 import OfficeScene from './components/OfficeScene.vue'
 import OfficeToolbar from './components/OfficeToolbar.vue'
 import StatusSummaryBar from './components/StatusSummaryBar.vue'
@@ -16,6 +20,7 @@ const { themeId, simulationRunning } = storeToRefs(store)
 useThemeCssVars(themeId)
 
 const engine = ref<OfficeSimulationEngine | null>(null)
+const addBotDialogVisible = ref(false)
 
 function syncEngineRunning() {
   if (!engine.value) return
@@ -38,9 +43,13 @@ onUnmounted(() => {
 
 <template>
   <div class="app-shell">
-    <OfficeToolbar />
+    <OfficeToolbar @add-bot="addBotDialogVisible = true" />
     <OfficeScene />
     <StatusSummaryBar />
+    <BotDetailDrawer />
+    <AddBotDialog v-model:visible="addBotDialogVisible" />
+    <ConfirmDialog />
+    <Toast position="top-center" />
   </div>
 </template>
 

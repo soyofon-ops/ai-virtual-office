@@ -6,7 +6,7 @@ import BotCharacter from './BotCharacter.vue'
 import { resolveBotPosition, useMotionClock } from '../composables/useBotMotion'
 import { useOfficeStore } from '../stores/office'
 import { layoutForTheme } from '../themes/registry'
-import type { SeatId } from '../types/bot'
+import type { BotId, SeatId } from '../types/bot'
 
 const store = useOfficeStore()
 
@@ -35,6 +35,10 @@ const occupiedSeats = computed(() => new Set(bots.value.map((bot) => bot.seatId)
 function seatLabel(seatId: SeatId) {
   if (occupiedSeats.value.has(seatId)) return ''
   return '空位'
+}
+
+function onBotActivate(id: BotId) {
+  store.selectBot(id)
 }
 </script>
 
@@ -75,6 +79,7 @@ function seatLabel(seatId: SeatId) {
       :key="entry.bot.id"
       :bot="entry.bot"
       :position="entry.position"
+      @activate="onBotActivate"
     />
   </svg>
 </template>
