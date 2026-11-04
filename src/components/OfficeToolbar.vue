@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import Button from 'primevue/button'
 import ToggleButton from 'primevue/togglebutton'
 import { storeToRefs } from 'pinia'
 
 import { useOfficeStore } from '../stores/office'
+
+const emit = defineEmits<{
+  'add-bot': []
+}>()
 
 const store = useOfficeStore()
 const { simulationRunning } = storeToRefs(store)
@@ -11,14 +16,17 @@ const { simulationRunning } = storeToRefs(store)
 <template>
   <header class="office-toolbar">
     <h1 class="office-toolbar__title">AI 虛擬辦公室</h1>
-    <ToggleButton
+    <div class="office-toolbar__actions">
+      <Button label="新增 bot" icon="pi pi-plus" @click="emit('add-bot')" />
+      <ToggleButton
       v-model="simulationRunning"
       on-label="模擬中"
       off-label="已暫停"
       on-icon="pi pi-play"
       off-icon="pi pi-pause"
-      aria-label="暫停或繼續模擬"
-    />
+        aria-label="暫停或繼續模擬"
+      />
+    </div>
   </header>
 </template>
 
@@ -41,5 +49,11 @@ const { simulationRunning } = storeToRefs(store)
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
+}
+
+.office-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 </style>

@@ -28,25 +28,27 @@ function mountOfficeScene() {
 describe('OfficeScene', () => {
   it('renders one character per bot in the store', () => {
     const { wrapper, store } = mountOfficeScene()
-    expect(wrapper.findAll('[data-bot-id]')).toHaveLength(store.botList.length)
+    expect(wrapper.findAll('.bot-character[data-bot-id]')).toHaveLength(store.botList.length)
   })
 
   it('applies data-bot-status when bot status changes', async () => {
     const { wrapper, store } = mountOfficeScene()
     const target = store.botList[0]!
-    expect(wrapper.find(`[data-bot-id="${target.id}"]`).attributes('data-bot-status')).toBe(
+    expect(wrapper.find(`.bot-character[data-bot-id="${target.id}"]`).attributes('data-bot-status')).toBe(
       target.status.kind,
     )
 
     store.setStatus(target.id, { kind: 'waiting', since: Date.now(), waitingFor: 'user' })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find(`[data-bot-id="${target.id}"]`).attributes('data-bot-status')).toBe('waiting')
+    expect(wrapper.find(`.bot-character[data-bot-id="${target.id}"]`).attributes('data-bot-status')).toBe('waiting')
   })
 
   it('reflects distinct bots from seeded defaults', () => {
     const { wrapper } = mountOfficeScene()
-    const ids = wrapper.findAll('[data-bot-id]').map((node) => node.attributes('data-bot-id'))
+    const ids = wrapper
+      .findAll('.bot-character[data-bot-id]')
+      .map((node) => node.attributes('data-bot-id'))
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.length).toBeGreaterThanOrEqual(5)
   })
@@ -79,9 +81,9 @@ describe('OfficeScene', () => {
       },
     })
 
-    expect(wrapper.find('[data-bot-id="solo"]').attributes('data-bot-status')).toBe('working')
+    expect(wrapper.find('.bot-character[data-bot-id="solo"]').attributes('data-bot-status')).toBe('working')
     store.setStatus(asBotId('solo'), { kind: 'error', since: 1, message: 'test' })
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('[data-bot-id="solo"]').attributes('data-bot-status')).toBe('error')
+    expect(wrapper.find('.bot-character[data-bot-id="solo"]').attributes('data-bot-status')).toBe('error')
   })
 })

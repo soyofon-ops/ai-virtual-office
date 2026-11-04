@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
+import ConfirmDialog from 'primevue/confirmdialog'
+import Toast from 'primevue/toast'
+import { useToast } from 'primevue/usetoast'
 import { storeToRefs } from 'pinia'
 
+import AddBotDialog from './components/AddBotDialog.vue'
+import BotDetailDrawer from './components/BotDetailDrawer.vue'
 import OfficeScene from './components/OfficeScene.vue'
 import OfficeToolbar from './components/OfficeToolbar.vue'
 import StatusSummaryBar from './components/StatusSummaryBar.vue'
@@ -11,11 +16,25 @@ import { useOfficeStore } from './stores/office'
 import type { OfficeSimulationEngine } from './simulation/engine'
 
 const store = useOfficeStore()
-const { themeId, simulationRunning } = storeToRefs(store)
+const { themeId, simulationRunning, freeSeats } = storeToRefs(store)
+const toast = useToast()
 
 useThemeCssVars(themeId)
 
 const engine = ref<OfficeSimulationEngine | null>(null)
+const addBotDialogVisible = ref(false)
+
+function openAddBotDialog() {
+  if (freeSeats.value.length === 0) {
+    toast.add({
+      severity: 'warn',
+      summary: '無空位',
+      detail: '所有座位都已占用，無法新增 bot。',
+      life: 4000,
+    })
+  }
+  addBotDialogVisible.value = true
+}
 
 function syncEngineRunning() {
   if (!engine.value) return
@@ -38,9 +57,13 @@ onUnmounted(() => {
 
 <template>
   <div class="app-shell">
-    <OfficeToolbar />
+    <OfficeToolbar @add-bot="openAddBotDialog" />
     <OfficeScene />
     <StatusSummaryBar />
+    <BotDetailDrawer />
+    <AddBotDialog v-model:visible="addBotDialogVisible" />
+    <ConfirmDialog />
+    <Toast position="top-center" />
   </div>
 </template>
 

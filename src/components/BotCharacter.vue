@@ -3,7 +3,7 @@ import { computed, toRef } from 'vue'
 
 import StatusBubble from './StatusBubble.vue'
 
-import type { Bot, BotId } from '../types/bot'
+import type { Bot } from '../types/bot'
 import type { Point } from '../types/theme'
 
 const props = defineProps<{
@@ -31,7 +31,7 @@ const motionClass = computed(() => {
 
 const avatarHue = computed(() => hueFromId(props.bot.id))
 
-function hueFromId(id: BotId) {
+function hueFromId(id: string) {
   let hash = 0
   for (let index = 0; index < id.length; index += 1) {
     hash = (hash * 31 + id.charCodeAt(index)) | 0
@@ -47,8 +47,7 @@ function hueFromId(id: BotId) {
     :data-bot-id="bot.id"
     :data-bot-status="statusKind"
     :transform="`translate(${position.x} ${position.y})`"
-    role="img"
-    :aria-label="`${bot.name}，${statusKind}`"
+    aria-hidden="true"
   >
     <ellipse cx="0" cy="14" rx="14" ry="4" class="bot-character__shadow" />
     <g class="bot-character__body-group">

@@ -18,7 +18,13 @@ import {
   type Task,
 } from '../types/bot'
 import type { ThemeId } from '../types/theme'
-import { createDefaultBots, suggestBotName } from '../simulation/fakeData'
+import {
+  createDefaultBots,
+  createTask,
+  ERROR_MESSAGE_POOL,
+  pickRandom,
+  suggestBotName,
+} from '../simulation/fakeData'
 
 const STORAGE_KEY = 'ai-virtual-office.v1'
 
@@ -182,7 +188,15 @@ export function createOfficeActions(state: OfficeState, persist: () => void) {
   }
 
   return {
-    addBot(input: { name: string; avatar: string; seatId?: SeatId }, roll: () => number = Math.random) {
+    addBot(
+      input: {
+        name: string
+        avatar: string
+        seatId?: SeatId
+        initialStatus?: BotStatusKind
+      },
+      roll: () => number = Math.random,
+    ) {
       if (Object.keys(state.bots).length >= MAX_BOTS) return null
       const seatId = firstFreeSeat(state.themeId, state.bots, input.seatId)
       if (!seatId) return null
@@ -191,14 +205,40 @@ export function createOfficeActions(state: OfficeState, persist: () => void) {
       const name = trimmedName || suggestBotName(existingNames, roll)
       const id = createBotId()
       const now = Date.now()
+      const initialKind = input.initialStatus ?? 'idle'
+      let status: BotStatus
+      let task: Task | null = null
+      switch (initialKind) {
+        case 'working':
+          status = { kind: 'working', since: now }
+          task = createTask(now, roll)
+          break
+        case 'waiting':
+          status = { kind: 'waiting', since: now, waitingFor: 'user' }
+          break
+        case 'error':
+          status = {
+            kind: 'error',
+            since: now,
+            message: pickRandom(ERROR_MESSAGE_POOL, roll),
+          }
+          break
+        case 'messaging':
+          status = { kind: 'idle', since: now, activity: 'daydream' }
+          break
+        case 'idle':
+        default:
+          status = { kind: 'idle', since: now, activity: 'daydream' }
+          break
+      }
       const bot: Bot = {
         id,
         name,
         avatar: input.avatar,
         seatId,
-        status: { kind: 'idle', since: now, activity: 'daydream' },
-        task: null,
-        history: [{ at: now, status: 'idle', note: '加入辦公室' }],
+        status,
+        task,
+        history: [{ at: now, status: status.kind, note: '加入辦公室' }],
       }
       state.bots[id] = bot
       persistBotsAndTheme()
@@ -290,7 +330,12 @@ export const useOfficeStore = defineStore('office', {
     botList: (state) => createOfficeGetters(state).botList(),
   },
   actions: {
-    addBot(input: { name: string; avatar: string; seatId?: SeatId }) {
+    addBot(input: {
+      name: string
+      avatar: string
+      seatId?: SeatId
+      initialStatus?: BotStatusKind
+    }) {
       return officeActions(this.$state).addBot(input)
     },
     removeBot(id: BotId) {
