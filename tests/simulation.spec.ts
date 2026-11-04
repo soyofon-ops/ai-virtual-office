@@ -35,8 +35,7 @@ describe('simulation engine', () => {
     const loneId = store.addBot({ name: 'Lonely', avatar: 'default' })!
     store.setStatus(loneId, { kind: 'idle', since: now - 5_000, activity: 'daydream' })
 
-    let roll = 0
-    const engine = createSimulationEngine({
+    const toWorking = createSimulationEngine({
       store: {
         listBotIds: () => [loneId],
         getBot: (id) => {
@@ -46,12 +45,53 @@ describe('simulation engine', () => {
         applySimulationUpdate: (id, update) => store.applySimulationUpdate(id, update),
       },
       config: defaultSimulationConfig,
-      random: { next: () => roll++ === 0 ? 0.1 : 0.99 },
+      random: { next: () => 0.1 },
       now: () => now,
     })
 
-    engine.step(now)
+    toWorking.step(now)
     expect(store.bots[loneId]?.status.kind).toBe('working')
+  })
+
+  it('keeps idle when random roll is above working weight', () => {
+    let now = 20_000
+    const store = useOfficeStore()
+    store.reloadFromDefaults(now)
+    for (const bot of store.botList) {
+      store.removeBot(bot.id)
+    }
+    const loneId = store.addBot({ name: 'Lonely', avatar: 'default' })!
+    store.setStatus(loneId, { kind: 'idle', since: now - 5_000, activity: 'daydream' })
+
+    const stayIdle = createSimulationEngine({
+      store: {
+        listBotIds: () => [loneId],
+        getBot: (id) => {
+          const bot = store.bots[id]
+          return bot ? { status: bot.status, task: bot.task } : null
+        },
+        applySimulationUpdate: (id, update) => store.applySimulationUpdate(id, update),
+      },
+      config: defaultSimulationConfig,
+      random: { next: () => 0.85 },
+      now: () => now,
+    })
+
+    stayIdle.step(now)
+    expect(store.bots[loneId]?.status.kind).toBe('idle')
+  })
+
+  it('turns waiting into error after 20 seconds', () => {
+    let now = 50_000
+    const store = useOfficeStore()
+    store.reloadFromDefaults(now)
+    const botId = asBotId('seed-b')
+    store.setStatus(botId, { kind: 'waiting', since: now - 20_000, waitingFor: 'user' })
+
+    const engine = store.createSimulationEngine({ seed: 7, now: () => now })
+    engine.step(now)
+    expect(store.bots[botId]?.status.kind).toBe('error')
+    engine.stop()
   })
 
   it('start and stop interval ticks', () => {

@@ -33,12 +33,11 @@ export function weightedPick(
 ): BotStatusKind | null {
   const entries = Object.entries(weights).filter(([, w]) => (w ?? 0) > 0) as [BotStatusKind, number][]
   if (entries.length === 0) return null
-  const total = entries.reduce((sum, [, w]) => sum + w, 0)
-  if (total <= 0) return null
-  let cursor = roll() * total
+  const r = roll()
+  let cumulative = 0
   for (const [kind, weight] of entries) {
-    cursor -= weight
-    if (cursor <= 0) return kind
+    cumulative += weight
+    if (r < cumulative) return kind
   }
-  return entries[entries.length - 1]![0]
+  return null
 }
