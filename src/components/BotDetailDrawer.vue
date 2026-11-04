@@ -25,20 +25,17 @@ const confirm = useConfirm()
 const visible = computed({
   get: () => selectedBotId.value !== null,
   set: (open: boolean) => {
-    if (!open) store.selectBot(null)
+    if (!open) {
+      store.selectBot(null)
+      restoreFocusToCharacter()
+    }
   },
 })
 
 const focusRestoreBotId = ref<BotId | null>(null)
 
-watch(selectedBotId, (id, previousId) => {
-  if (id) {
-    focusRestoreBotId.value = id
-    return
-  }
-  if (previousId) {
-    restoreFocusToCharacter()
-  }
+watch(selectedBotId, (id) => {
+  if (id) focusRestoreBotId.value = id
 })
 
 function restoreFocusToCharacter() {

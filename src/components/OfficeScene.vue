@@ -144,6 +144,7 @@ onUnmounted(() => {
         data-bot-interactive
         :style="hitAreaStyle(entry.position)"
         :aria-label="`${entry.bot.name}，${entry.bot.status.kind}，按 Enter 查看詳情`"
+        @mousedown="rememberBotInteractive($event.currentTarget)"
         @click="onBotActivate(entry.bot.id, $event)"
         @keydown="onBotKeydown($event, entry.bot.id)"
         @mouseenter="showTooltipFor($event, entry.bot)"
